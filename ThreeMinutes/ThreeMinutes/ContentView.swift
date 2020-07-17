@@ -8,6 +8,94 @@
 
 import SwiftUI
 
+let items: [BottomBarItem] = [
+    BottomBarItem(icon: "house.fill", title: "Home", color: .purple),
+    BottomBarItem(icon: "heart", title: "Likes", color: .pink),
+    BottomBarItem(icon: "magnifyingglass", title: "Search", color: .orange),
+    BottomBarItem(icon: "person.fill", title: "Profile", color: .blue)
+]
+struct BasicView: View {
+    let item: BottomBarItem
+
+    var detailText: String {
+    "\(item.title) Detail"
+}
+
+var followButton: some View {
+    Button(action: openTwitter) {
+        VStack {
+            Text("Developed by Bezhan Odinaev")
+                .font(.headline)
+                .foregroundColor(item.color)
+
+            Text("@smartvipere75")
+                .font(.subheadline)
+                .foregroundColor(.gray)
+        }
+    }
+}
+
+var destination: some View {
+    Text(detailText)
+        .navigationBarTitle(Text(detailText))
+}
+
+var navigateButton: some View {
+    NavigationLink(destination: destination) {
+        ZStack {
+            Rectangle()
+                .fill(item.color)
+                .cornerRadius(8)
+                .frame(height: 52)
+                .padding(.horizontal)
+
+            Text("Navigate")
+                .font(.headline)
+                .foregroundColor(.white)
+        }
+    }
+}
+
+func openTwitter() {
+    guard let url = URL(string: "https://twitter.com/smartvipere75") else {
+        return
+    }
+    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+}
+
+var body: some View {
+    VStack {
+        Spacer()
+
+        followButton
+
+        Spacer()
+
+        navigateButton
+        }
+    }
+}
+
+struct ContentView : View {
+    @State private var selectedIndex: Int = 0
+
+    var selectedItem: BottomBarItem {
+        items[selectedIndex]
+    }
+
+var body: some View {
+        NavigationView {
+            VStack {
+                BasicView(item: selectedItem)
+                    .navigationBarTitle(Text(selectedItem.title))
+                BottomBar(selectedIndex: $selectedIndex, items: items)
+            }
+        }
+    }
+}
+
+
+/*
 struct Pokemon: Identifiable {
   let id = UUID()
   let name: String
@@ -29,6 +117,49 @@ extension View {
     }
 }
 
+struct PushContainer<Content: View> : View {
+    let main: AnyView
+    var body: some View {
+        GeometryReader { proxy in
+            self.generateBody(proxy: proxy)
+        }.animation(.default)
+    }
+    init(content: Content) {
+        self.main = AnyView.init(content)
+    }
+    func generateBody(proxy: GeometryProxy) -> some View {
+        return ZStack {
+            self.main
+        }}}
+
+class BaseNavigationModel: ObservableObject {
+    @Published var isPushActive: Bool = false
+    @Published
+    private(set) var mainView: AnyView?
+    public func pushMain<Main: View>(view: Main) {
+        // First pop if any other view has been pushed
+        isPushActive = false
+        let container = PushContainer(content: view)
+        self.mainView = AnyView(container)
+        // Push view
+        isPushActive = true}}
+
+struct BaseNavigationView<Content>: View where Content: View {
+    @ObservedObject var model: BaseNavigationModel
+    var content: () -> Content
+    var body: some View {
+        NavigationView {
+            GeometryReader { geometry in
+                ZStack(alignment: .center) {
+                    self.content()
+                    if self.model.mainView != nil {
+                        NavigationLink(destination: self.model.mainView!, isActive: self.$model.isPushActive, label: {
+                            EmptyView()
+                        }).isDetailLink(false)
+                    }}}}}}
+
+
+
 struct ContentView: View {
 	
     
@@ -41,7 +172,7 @@ struct ContentView: View {
                 Button("Jump to #8") {
                     value.scrollTo(9)
                 }
-                
+
                 ForEach(0..<10) { i in
                     Text("Example \(i)")
                         .frame(width: 300, height: 300)
@@ -50,6 +181,8 @@ struct ContentView: View {
                 }
             }
         }
+        
+   
         
             
 
@@ -214,3 +347,6 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
+ 
+ */
